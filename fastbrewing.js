@@ -137,11 +137,8 @@ $(document).ready(function() {
 
     // ajax
     $.getJSON(url, function( data ) {
-
       addAccountsToTable(data);
-
       $('#accounts-table .pricing-popover').popover();
-
       // make the table a datatable
       accountsTable = $('#accounts-table').DataTable({
         paging: false,
