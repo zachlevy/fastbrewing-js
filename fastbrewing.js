@@ -161,6 +161,24 @@ $(document).ready(function() {
     getAccountsSalesforce(accounts_salesforce_url, false, true);
   }
 
+  function addAccountsToTable(accounts) {
+    console.log(accounts.length);
+    var rows = [];
+
+    // add account to table
+    $.each(accounts, function(index, account) {
+      // console.log(account.id + " start");
+      // console.log(account);
+
+      row = buildAccountRow(account);
+      rows.push(row);
+
+      mapAccount(account);
+    });
+
+    document.getElementById("accounts-table-tbody").innerHTML = rows.join("");
+  }
+
   // get salesforce stores json from external url
   function getAccountsSalesforce(url, showAccountsMap, showAccountsTable) {
     showAccountsMap = typeof showAccountsMap !== 'undefined' ? showAccountsMap : false;
@@ -169,26 +187,7 @@ $(document).ready(function() {
     // ajax
     $.getJSON(url, function( data ) {
 
-      var accounts = data;
-      // console.log(accounts);
-      console.log(accounts.length);
-
-      var rows = [];
-
-      // add account to table
-      $.each(accounts, function(index, account) {
-        // console.log(account.id + " start");
-        // console.log(account);
-
-        row = buildAccountRow(account);
-        // console.log(row)
-        // console.log(account.id + " end");
-        rows.push(row);
-
-        mapAccount(account);
-      });
-
-      document.getElementById("accounts-table-tbody").innerHTML = rows.join("");
+      addAccountsToTable(data);
 
       $('#accounts-table .pricing-popover').popover();
 
@@ -621,13 +620,13 @@ $(document).ready(function() {
     });
   }
 
-  // store finder submit listener
+  // account finder submit listener
   $('#filter-submit').on('click', function () {
     console.log('submit clicked');
     address = $('#filter-code').val();
 
     // show the table
-    $('#stores-table_wrapper').show();
+    $('#accounts-table_wrapper').show();
 
     geocodeAddress(address);
 
@@ -646,36 +645,21 @@ $(document).ready(function() {
         storesMap.setZoom(11);
       });
 
-      // redraw the stores table
+      // redraw the accounts table
       var latitude_to_s = location.lat.toString().replace('.', ',');
       var longitude_to_s = location.lng.toString().replace('.', ',');
 
-      var stores_location_production_url = 'http://fastbrewing-production.herokuapp.com/stores/map/near/' + latitude_to_s + '/' + longitude_to_s;
-      var stores_location_staging_url = 'http://fastbrewing-staging.herokuapp.com/stores/map/near/' + latitude_to_s + '/' + longitude_to_s;
-      var stores_location_development_url = 'http://localhost:3000/stores/map/near/' + latitude_to_s + '/' + longitude_to_s;
-      var stores_locations_url = stores_location_development_url;
-      console.log(stores_locations_url);
+      var accounts_location_production_url = 'http://fastbrewing-production.herokuapp.com/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
+      var accounts_location_staging_url = 'http://fastbrewing-staging.herokuapp.com/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
+      var accounts_location_development_url = 'http://localhost:3000/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
+      var accounts_locations_url = accounts_location_development_url;
+      console.log(accounts_locations_url);
 
-      // for getting store that carry a given product
-      var inventory_id = getQueryVariable("inventory_id");
-      if (inventory_id > 0) {
-        stores_locations_url += ("/inventories/" + inventory_id)
-      }
-
-      $.getJSON(stores_locations_url, function (data) {
-        // console.log(data);
-        // clear the table
-        storesTable.clear().draw();
-
-        $.each(data.result.stores, function(index, store) {
-          drawStoreToTable(store);
-        });
-        storesTable.draw();
-        // recreate country filter
-        createSelectFilter('#country-filter-wrap', 3, "Country");
-
-        // recreate state filter
-        createSelectFilter('#state-filter-wrap', 2, "State/Province");
+      $.getJSON(accounts_locations_url, function (data) {
+        accountsTable.clear().draw();
+        addAccountsToTable(data);
+        debugger;
+        // accountsTable.draw();
       });
     });
   }
