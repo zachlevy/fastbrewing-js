@@ -30,13 +30,13 @@ $(document).ready(function() {
   // colorbox
   $('a.product-gallery-photo').colorbox({rel:'product-gallery'});
 
-  // ONLINE STORES
-  // online store url
-  var online_stores_production_url = "http://fastbrewing-production.herokuapp.com/online_stores/map";
-  var online_stores_staging_url = "http://fastbrewing-staging.herokuapp.com/online_stores/map";
-  var online_stores_development_url = "http://localhost:3000/online_stores/map";
-  var stores_url = online_stores_development_url;
-  console.log(stores_url);
+  // accounts STORES
+  // accounts store url
+  var online_accounts_production_url = "http://fastbrewing-production.herokuapp.com/accounts/online";
+  var online_accounts_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/online";
+  var online_accounts_development_url = "http://localhost:3000/accounts/online";
+  var accounts_url = online_accounts_development_url;
+  console.log(accounts_url);
 
   // splash modal detector and checker
   if ($('#splash-modal').length > 0) {
@@ -60,9 +60,9 @@ $(document).ready(function() {
     // for getting store that carry a given product
     var inventory_id = getQueryVariable("inventory_id");
     if (inventory_id > 0) {
-      stores_url += ("/inventories/" + inventory_id)
+      accounts_url += ("/inventories/" + inventory_id)
     }
-    getOnlineStores(stores_url);
+    getOnlineAccounts(accounts_url);
   }
 
   // if store details wrappers exists
@@ -79,39 +79,27 @@ $(document).ready(function() {
     }
   };
 
-  function getOnlineStores(url) {
+  function getOnlineAccounts(url) {
     $.getJSON(url, function( data ) {
 
-      // build the table headers for each product
-      $.each(data.result.inventories, function(index, product) {
-        $('#online-stores-table thead tr').append('<th>' + product.name + '</th>');
+      var rows = [];
+
+      // add account to table
+      $.each(data, function(index, account) {
+        // console.log(account.id + " start");
+        // console.log(account);
+
+        row = buildAccountRow(account, true);
+        rows.push(row);
+
       });
 
-      // map the stores and add them to the table
-      $.each(data.result.stores, function(index, store) {
-        // console.log(store);
-        row = "";
-        row += '<tr>';
-        if (store.country) {row += '<td>' + store.country + '</td>';} else {row += '<td></td>';}
-        if (store.state) {row += '<td>' + store.state + '</td>';} else {row += '<td></td>';}
-        if (store.website) {row += '<td><a href="' + store.website + '" target="_blank">' + store.store_name + '</a></td>';} else {row += '<td></td>';}
-        // add where the store has the product
-        $.each(store.inventories, function(index, inv) {
-          if (inv.inventory) {
-            row += '<td>' + render_url(inv.inventory) + '</td>';
-          } else {
-            row += '<td></td>';
-          }
-        });
-        row += '</tr>';
-        $('#online-stores-table tbody').append(row);
-      });
+      document.getElementById("online-stores-table-tbody").innerHTML = rows.join("");
 
       // make the table a datatable
       $('#online-stores-table').DataTable({
         paging: false,
         info: false,
-        order: [[ 0, "desc" ]],
         fixedHeader: true
       });
     });
@@ -132,33 +120,15 @@ $(document).ready(function() {
   console.log(accounts_salesforce_url);
 
   // stores
-  if ($('#stores-map').length > 0 && $('#stores-table').length > 0) {
+  if ($('#stores-map').length > 0 && $('#accounts-table').length > 0) {
     // if both stores map and table are present, combine to save calc time
 
-    // for getting store that carry a given product
-    var inventory_id = getQueryVariable("inventory_id");
-    if (inventory_id > 0) {
-      stores_url += ("/inventories/" + inventory_id)
-    }
-
     // stores map
     createStoresMap();
-    getStores(stores_url, true, true);
+    // getStores(stores_url, true, true);
 
     // salesforce
-    getAccountsSalesforce(accounts_salesforce_url, true, true);
-  } else if ($('#stores-map').length > 0) {
-    // if only stores-map is present
-    // stores map
-    createStoresMap();
-    getStores(stores_url, false, true);
-    // salesforce
-    getAccountsSalesforce(accounts_salesforce_url, true, false);
-  } else if ($('#stores-table').length > 0) {
-    // if only stores-table is present
-    getStores(stores_url, false, true);
-    // salesforce
-    getAccountsSalesforce(accounts_salesforce_url, false, true);
+    getAccountsSalesforce(accounts_salesforce_url);
   }
 
   function addAccountsToTable(accounts) {
@@ -170,7 +140,7 @@ $(document).ready(function() {
       // console.log(account.id + " start");
       // console.log(account);
 
-      row = buildAccountRow(account);
+      row = buildAccountRow(account, false);
       rows.push(row);
 
       mapAccount(account);
@@ -180,9 +150,8 @@ $(document).ready(function() {
   }
 
   // get salesforce stores json from external url
-  function getAccountsSalesforce(url, showAccountsMap, showAccountsTable) {
-    showAccountsMap = typeof showAccountsMap !== 'undefined' ? showAccountsMap : false;
-    showAccountsTable = typeof showAccountsTable !== 'undefined' ? showAccountsTable : false;
+  function getAccountsSalesforce(url) {
+    console.log("getAccountsSalesforce");
 
     // ajax
     $.getJSON(url, function( data ) {
@@ -198,49 +167,17 @@ $(document).ready(function() {
         fixedHeader: true
       });
 
-      accountsTable.column(2).visible(false);
-      accountsTable.column(3).visible(false);
+      // accountsTable.column(2).visible(false);
+      // accountsTable.column(3).visible(false);
 
       createSelectFilter('#country-filter-wrap', 3, "Country");
       createSelectFilter('#state-filter-wrap', 2, "State/Province");
 
-      //
-      // if (showAccountsTable === true) {
-      //   // if showing table
-      //   // map the accounts and add them to the table
-      //   $.each(data.result.stores, function(index, store) {
-      //     // console.log(store);
-      //
-      //     drawStoreToTable(store);
-      //     // addStoreToTable(store);
-      //
-      //     // get address and add to map
-      //     // if showing both map and table
-      //     if (showStoresMap === true) {
-      //       mapStore(store);
-      //     }
-      //   });
-      //   storesTable.draw();
-      // } else if (showStoresMap === true) {
-      //   // if showing only map
-      //   mapStore(store);
-      // }
-      //
-      // // hide the distance column
-      // // storesTable.column(4).visible(false);
-      //
-      // // create country filter
-      // createSelectFilter('#country-filter-wrap', 3, "Country");
-      //
-      // // create state filter
-      // createSelectFilter('#state-filter-wrap', 2, "State/Province");
-      //
-      // // console.log(data);
     });
   }
 
   // builds the account row for the accounts table
-  function buildAccountRow(account) {
+  function buildAccountRow(account, online) {
     // fastrack popover content
     // fr_24_combo_price
     // fr_12_combo_price
@@ -298,11 +235,11 @@ $(document).ready(function() {
     var fl_pc = "<table>";
     fl_pc += "<tr><td><strong>FL 12oz</strong></td><td>" + generatePrice(account.fl_12oz_price) + "</td></tr>";
     fl_pc += "<tr><td><strong>FL 22oz</strong></td><td>" + generatePrice(account.fl_22oz_price) + "</td></tr>";
-    row += '<td><strong>Web Link<strong></td>';
+    fl_pc += '<td><strong>Web Link<strong></td>';
     if (account.fl_weblink != null && account.fl_weblink.length > 10) {fl_pc += '<tr><td><strong>Web Link<strong></td><td><a href=\'' + ensureHttpInUrl(account.fl_weblink) + '\' target=\'_blank\'>web link</a></td><td></td></tr>';} else {fl_pc += '<tr><td><strong>Web Link<strong></td><td>None</td></tr>';}
     fl_pc += "</table>";
 
-
+    // Id
     // Account Name
     // Address
     // Website
@@ -315,16 +252,22 @@ $(document).ready(function() {
     row = '<tr id="account-' + account.id + '">';
     // if (store.store_name) {row += '<td><a href="/retailers-and-wholesalers-buy/store-details?store_id=' + store.id + '" target="_blank">' + store.store_name + '</a></td>';} else {row += '<td></td>';}
     row += "<td>" + account.name + "</td>";
-    if (account.full_address != null) {row += '<td>' + account.full_address + '</td>';} else {row += '<td></td>';}
+    if (!online) {
+      if (account.address != null) {row += '<td>' + account.address + '</td>';} else {row += '<td></td>';}
+    }
     if (account.state != null) {row += '<td>' + account.state + '</td>';} else {row += '<td></td>';}
     if (account.country != null) {row += '<td>' + account.country + '</td>';} else {row += '<td></td>';}
     if (account.website != null && account.website.indexOf("http") > -1) {row += '<td><a href="' + account.website + '" target="_blank">website</a></td>';} else {row += '<td></td>';}
-    if (account.phone != null) {row += '<td>' + account.phone + '</td>';} else {row += '<td></td>';}
+    if (!online) {
+      if (account.phone != null) {row += '<td>' + account.phone + '</td>';} else {row += '<td></td>';}
+    }
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastFerment Pricing" data-content="' + ff_pc + '">Pricing</a></td>';
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastFerment Starter Kit Pricing" data-content="' + ff_sk_pc + '">Pricing</a></td>';
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastRack Pricing" data-content="' + fr_pc + '">Pricing</a></td>';
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastLabel Pricing" data-content="' + fl_pc + '">Pricing</a></td>';
-    if (account.fr_speed_challenge_date != null) {row += '<td>' + account.fr_speed_challenge_date + '</td>';} else {row += '<td></td>';}
+    if (!online) {
+      if (account.fr_speed_challenge_date != null) {row += '<td>' + account.fr_speed_challenge_date + '</td>';} else {row += '<td></td>';}
+    }
     row += "</tr>";
     // returns row html
     return row
@@ -339,114 +282,6 @@ $(document).ready(function() {
     } else {
       return parseFloat(price).toFixed(2);
     }
-  }
-
-  // get stores json from external url
-  function getStores(url, showStoresMap, showStoresTable) {
-    showStoresMap = typeof showStoresMap !== 'undefined' ? showStoresMap : false;
-    showStoresTable = typeof showStoresTable !== 'undefined' ? showStoresTable : false;
-
-    // ajax
-    $.getJSON(url, function( data ) {
-
-      globalStores = data.result.stores;
-
-      // build the table headers for each product
-      $.each(data.result.inventories, function(index, product) {
-        $('#stores-table thead tr').append('<th>' + product.name + '</th>');
-      });
-
-      // make the table a datatable
-      storesTable = $('#stores-table').DataTable({
-        paging: false,
-        info: false,
-        fixedHeader: true
-      });
-
-
-
-
-      if (showStoresTable === true) {
-        // if showing table
-        // map the stores and add them to the table
-        $.each(data.result.stores, function(index, store) {
-          // console.log(store);
-
-          drawStoreToTable(store);
-          // addStoreToTable(store);
-
-          // get address and add to map
-          // if showing both map and table
-          if (showStoresMap === true) {
-            mapStore(store);
-          }
-        });
-        storesTable.draw();
-      } else if (showStoresMap === true) {
-        // if showing only map
-        mapStore(store);
-      }
-
-      // hide the distance column
-      // storesTable.column(4).visible(false);
-
-      // create country filter
-      // createSelectFilter('#country-filter-wrap', 3, "Country");
-
-      // create state filter
-      // createSelectFilter('#state-filter-wrap', 2, "State/Province");
-
-      // console.log(data);
-    });
-  }
-
-  // users datatables
-  function drawStoreToTable (store) {
-    var store_array = [
-      // '<img src="' + store.photo + '" />',
-      '<a href="/retailers-and-wholesalers-buy/store-details?store_id=' + store.id + '" target="_blank">' + store.store_name + '</a>',
-      store.address,
-      store.state,
-      store.country,
-    ];
-
-    if (store.website) {
-      store_array.push('<a href="' + store.website + '" target="_blank">website</a>');
-    } else {
-      store_array.push(null)
-    }
-
-    $.each(store.inventories, function(index, inv) {
-      store_array.push(inv.inventory);
-    });
-
-    // console.log(store_array);
-    storesTable.row.add(store_array); //.draw();
-  }
-
-  // build the row and add the store to the table. doesnt use datatables
-  function addStoreToTable (store) {
-    row = "";
-    row += '<tr>';
-    // if (store.photo) {row += '<img src="' + store.photo + '" />';}
-    if (store.store_name) {row += '<td><a href="/retailers-and-wholesalers-buy/store-details?store_id=' + store.id + '" target="_blank">' + store.store_name + '</a></td>';} else {row += '<td></td>';}
-    if (store.address) {row += '<td>' + store.address + '</td>';} else {row += '<td></td>';}
-    if (store.state) {row += '<td>' + store.state + '</td>';} else {row += '<td></td>';}
-    if (store.country) {row += '<td>' + store.country + '</td>';} else {row += '<td></td>';}
-    // row += '<td id="distance-store-' + store.id + '"></td>'; // for distance
-    //if (store.phone) {row += '<td>' + store.phone + '</td>';} else {row += '<td></td>';}
-    if (store.website) {row += '<td><a href="' + store.website + '" target="_blank">website</a></td>';} else {row += '<td></td>';}
-    //if (store.email) {row += '<td><a href="mailto:' + store.email + '">' + store.email + '</a></td>';} else {row += '<td></td>';}
-    // add where the store has the product
-    $.each(store.inventories, function(index, inv) {
-      if (inv.inventory) {
-        row += '<td>' + inv.inventory + '</td>';
-      } else {
-        row += '<td></td>';
-      }
-    });
-    row += '</tr>';
-    $('#stores-table tbody').append(row);
   }
 
   function createSelectFilter (selector, columnIndex, label) {
@@ -658,7 +493,6 @@ $(document).ready(function() {
       $.getJSON(accounts_locations_url, function (data) {
         accountsTable.clear().draw();
         addAccountsToTable(data);
-        debugger;
         // accountsTable.draw();
         $('#accounts-table .pricing-popover').popover();
       });
