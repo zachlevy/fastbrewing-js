@@ -660,6 +660,7 @@ $(document).ready(function() {
         addAccountsToTable(data);
         debugger;
         // accountsTable.draw();
+        $('#accounts-table .pricing-popover').popover();
       });
     });
   }
