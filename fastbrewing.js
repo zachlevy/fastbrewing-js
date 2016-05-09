@@ -490,39 +490,6 @@ $(document).ready(function() {
     });
   }
 
-  // place the store on the map
-  function mapStore (store) {
-    // build the popup
-    popup = '<div class="map-popup">';
-    if (store.photo) {popup += '<div class="col-xs-5"><img src="' + store.photo + '" class="img-responsive store-photo" /></div><div class="col-xs-7">';}
-    // //if (store.store_name) {row += '<td>store.store_name + '</a></td>';} else {row += '<td></td>';}
-    if (store.store_name) {popup += '<h3><a href="/retailers-and-wholesalers-buy/store-details?store_id=' + store.id + '" target="_blank">' + store.store_name + '</a></h3>';}
-    if (store.full_address) {popup += '<p>' + store.full_address + '</p>';}
-    if (store.phone) {popup += '<p>' + store.phone + '</p>';}
-    if (store.website) {popup += '<p><a href="' + store.website + '" target="_blank">website</a></p>';}
-    if (store.email) {popup += '<p><a href="mailto:' + store.email + '">' + store.email + '</a></p>';}
-    if (store.inventories.length > 1) {
-      popup += '<table class="table"><thead><tr><th>Product</th><th>Price</th></tr></thead><tbody>';
-      $.each(store.inventories, function (index, product) {
-        var inv_to_s;
-        product.inventory ? inv_to_s = product.inventory : inv_to_s = "";
-        popup += '<tr><td>' + product.name + '</td><td>' + inv_to_s + '</td></tr>';
-      });
-      popup += '</tbody></table>';
-    }
-    if (store.photo) {popup += '</div>'};
-    popup += '</div>';
-
-    // add marker
-    storesMap.addMarker({
-      lat: store.latitude,
-      lng: store.longitude,
-      infoWindow: {
-        content: popup
-      }
-    });
-  }
-
   // adds http to the start of a url if it isn't there already
   function ensureHttpInUrl (text) {
     if (text == null || text == "") {
