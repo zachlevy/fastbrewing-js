@@ -56,12 +56,6 @@ $(document).ready(function() {
   });
 
   if ($('#online-stores-table').length > 0) {
-
-    // for getting store that carry a given product
-    var inventory_id = getQueryVariable("inventory_id");
-    if (inventory_id > 0) {
-      accounts_url += ("/inventories/" + inventory_id)
-    }
     getOnlineAccounts(accounts_url);
   }
 
@@ -121,31 +115,19 @@ $(document).ready(function() {
 
   // stores
   if ($('#stores-map').length > 0 && $('#accounts-table').length > 0) {
-    // if both stores map and table are present, combine to save calc time
-
-    // stores map
     createStoresMap();
-    // getStores(stores_url, true, true);
-
-    // salesforce
     getAccountsSalesforce(accounts_salesforce_url);
   }
 
   function addAccountsToTable(accounts) {
     console.log(accounts.length);
     var rows = [];
-
     // add account to table
     $.each(accounts, function(index, account) {
-      // console.log(account.id + " start");
-      // console.log(account);
-
       row = buildAccountRow(account, false);
       rows.push(row);
-
       mapAccount(account);
     });
-
     document.getElementById("accounts-table-tbody").innerHTML = rows.join("");
   }
 
