@@ -91,6 +91,8 @@ $(document).ready(function() {
 
       document.getElementById("online-stores-table-tbody").innerHTML = rows.join("");
 
+      $('#online-stores-table .pricing-popover').popover();
+
       // make the table a datatable
       $('#online-stores-table').DataTable({
         paging: false,
@@ -156,9 +158,7 @@ $(document).ready(function() {
     });
   }
 
-  // builds the account row for the accounts table
-  function buildAccountRow(account, online) {
-    // fastrack popover content
+  function buildFrTable (account) {
     // fr_24_combo_price
     // fr_12_combo_price
     // fr_24_rack_price
@@ -175,8 +175,10 @@ $(document).ready(function() {
     fr_pc += "<tr><td><strong>FR12 Tray</strong></td><td>" + generatePrice(account.fr_12_tray_price) + "</td></tr>";
     if (account.fr_weblink != null && account.fr_weblink.length > 10) {fr_pc += '<tr><td><strong>Web Link<strong></td><td><a href=\'' + ensureHttpInUrl(account.fr_weblink) + '\' target=\'_blank\'>web link</a></td></tr>';} else {fr_pc += '<tr><td><strong>Web Link<strong></td><td>None</td></tr>';}
     fr_pc += "</table>";
+    return  fr_pc;
+  }
 
-    // fastferment popover content
+  function buildFfSkTable(account) {
     // ff_beer_starter_kit_price
     // ff_wine_starter_kit_price
     // ff_only_bundle_kit_price
@@ -187,8 +189,10 @@ $(document).ready(function() {
     ff_sk_pc += "<tr><td><strong>FF Only Bundle Kit</strong></td><td>" + generatePrice(account.ff_only_bundle_kit_price) + "</td></tr>";
     if (account.ff_starter_kit_weblink != null && account.ff_starter_kit_weblink.length > 10) {ff_sk_pc += '<tr><td><strong>Web Link<strong></td><td><a href=\'' + ensureHttpInUrl(account.ff_starter_kit_weblink) + '\' target=\'_blank\'>web link</a></td></tr>';} else {ff_sk_pc += '<tr><td><strong>Web Link<strong></td><td>None</td></tr>';}
     ff_sk_pc += "</table>";
+    return ff_sk_pc;
+  }
 
-    // fastferment starter kit popover content
+  function buildFfTable(account) {
     // ff_fermenter_price
     // ff_stand_price
     // ff_temperature_jacket_price
@@ -207,17 +211,34 @@ $(document).ready(function() {
     ff_pc += "<tr><td><strong>FF Extra Collection Ball</strong></td><td>" + generatePrice(account.ff_extra_collection_ball_price) + "</td></tr>";
     if (account.ff_weblink != null && account.ff_weblink.length > 10) {ff_pc += '<tr><td><strong>Web Link<strong></td><td><a href=\'' + ensureHttpInUrl(account.ff_weblink) + '\' target=\'_blank\'>web link</a></td></tr>';} else {ff_pc += '<tr><td><strong>Web Link<strong></td><td>None</td></tr>';}
     ff_pc += "</table>";
+    return ff_pc;
+  }
 
-    // fastlabel popover content
+  function buildFlTable(account) {
     // fl_12oz_price
     // fl_22oz_price
     // fl_weblink
     var fl_pc = "<table>";
     fl_pc += "<tr><td><strong>FL 12oz</strong></td><td>" + generatePrice(account.fl_12oz_price) + "</td></tr>";
     fl_pc += "<tr><td><strong>FL 22oz</strong></td><td>" + generatePrice(account.fl_22oz_price) + "</td></tr>";
-    fl_pc += '<td><strong>Web Link<strong></td>';
     if (account.fl_weblink != null && account.fl_weblink.length > 10) {fl_pc += '<tr><td><strong>Web Link<strong></td><td><a href=\'' + ensureHttpInUrl(account.fl_weblink) + '\' target=\'_blank\'>web link</a></td><td></td></tr>';} else {fl_pc += '<tr><td><strong>Web Link<strong></td><td>None</td></tr>';}
     fl_pc += "</table>";
+    return fl_pc;
+  }
+
+  // builds the account row for the accounts table
+  function buildAccountRow(account, online) {
+    // fastrack popover content
+    var fr_pc = buildFrTable(account);
+
+    // fastferment popover content
+    var ff_sk_pc = buildFfSkTable(account);
+
+    // fastferment starter kit popover content
+    var ff_pc = buildFfTable(account);
+
+    // fastlabel popover content
+    var fl_pc = buildFlTable(account);
 
     // Id
     // Account Name
@@ -315,6 +336,13 @@ $(document).ready(function() {
     }
   }
 
+  // on map popover pricing link click
+  $("#stores-map").on("click", ".pricing-popover", function(e){
+    console.log("updateAccountDetails");
+    var account = JSON.parse(decodeURI($(e.target).data("account")));
+    buildAccountDetails(account);
+  });
+
   // place the account on the map
   function mapAccount (account) {
     if (account.latitude == null) {
@@ -327,7 +355,7 @@ $(document).ready(function() {
     if (account.full_address) {popup += '<p>' + account.full_address + '</p>';}
     if (account.phone) {popup += '<p>' + account.phone + '</p>';}
     if (account.website) {popup += '<p><a href="' + ensureHttpInUrl(account.website) + '" target="_blank">website</a></p>';}
-    popup += '<a class="pricing-popover" data-toggle="modal" data-target="#account-modal">Pricing</a>'
+    popup += '<a class="pricing-popover" data-toggle="modal" data-target="#account-modal" data-id="' + account.id + '" data-account="' + encodeURI(JSON.stringify(account)) + '">Pricing</a>'
     popup += '</div>';
 
     // add marker
@@ -491,39 +519,25 @@ $(document).ready(function() {
   }
 
   // store details page
-  function buildAccountDetails (account_id) {
+  function buildAccountDetails (account) {
+    console.log("buildAccountDetails");
+    console.log(account);
 
-    // console.log(store_id);
+    $("#account-name").html(account.name);
+    $("#account-address").html(account.address);
+    $("#account-city").html(account.city);
+    $("#account-state").html(account.state);
+    $("#account-country").html(account.country);
+    $("#account-code").html(account.code);
+    $("#account-website").html(account.websie)
+    $("#account-phone").html(account.phone)
+    $("#account-email").html(account.email)
 
-    var account_details_production_url = "http://fastbrewing-production.herokuapp.com/accounts/" + account_id + ".json";
-    var account_details_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/" + account_id + ".json";
-    var account_details_development_url = "http://localhost:3000/accounts/" + account_id + ".json";
-    var url = account_details_development_url;
-    console.log(url);
+    $("#account-fr-table").html(buildFrTable(account));
+    $("#account-ff-sk-table").html(buildFfSkTable(account));
+    $("#account-fl-table").html(buildFlTable(account));
+    $("#account-ff-table").html(buildFfTable(account));
 
-    $.getJSON(url, function(account) {
-      $('#account-name').html(account.account_name);
-      $('#account-full-address').html(account.full_address);
-      $('#account-website').html('<a href="' + account.website + '" target="_blank">website</a>');
-      $('#account-phone').html(account.phone);
-      $('#account-email').html('<a href="mailto:' + account.email + '">' + account.email + '</a>');
-
-      if (account.latitude > 0) {
-        accountMap = new GMaps({
-          div: '#account-map',
-          lat: account.latitude,
-          lng: account.longitude
-        });
-
-        accountMap.addMarker({
-          lat: account.latitude,
-          lng: account.longitude
-        });
-      }
-
-
-
-    });
   }
 
   // reviews start
