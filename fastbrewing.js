@@ -32,9 +32,9 @@ $(document).ready(function() {
 
   // accounts STORES
   // accounts store url
-  var online_accounts_production_url = "http://fastbrewing-production.herokuapp.com/accounts/online";
-  var online_accounts_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/online";
-  var online_accounts_development_url = "http://localhost:3000/accounts/online";
+  var online_accounts_production_url = "http://fastbrewing-production.herokuapp.com/accounts/online.json";
+  var online_accounts_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/online.json";
+  var online_accounts_development_url = "http://localhost:3000/accounts/online.json";
   var accounts_url = online_accounts_development_url;
   console.log(accounts_url);
 
@@ -60,8 +60,9 @@ $(document).ready(function() {
   }
 
   // if store details wrappers exists
-  if ($('#store-panel').length > 0 && $('#store-map').length > 0) {
-    buildStoreDetails();
+  if ($('#account-panel').length > 0 && $('#account-map').length > 0) {
+    var account_id = getQueryVariable("account_id");
+    buildAccountDetails(account_id);
   }
 
   // renders a url if the string has http in it
@@ -107,9 +108,9 @@ $(document).ready(function() {
   var stores_url = stores_development_url;
   console.log(stores_url);
 
-  var accounts_salesforce_production_url = "http://fastbrewing-production.herokuapp.com/accounts.json";
-  var accounts_salesforce_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts.json";
-  var accounts_salesforce_development_url = "http://localhost:3000/accounts.json";
+  var accounts_salesforce_production_url = "http://fastbrewing-production.herokuapp.com/accounts/physical.json";
+  var accounts_salesforce_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/physical.json";
+  var accounts_salesforce_development_url = "http://localhost:3000/accounts/physical.json";
   var accounts_salesforce_url = accounts_salesforce_development_url;
   console.log(accounts_salesforce_url);
 
@@ -326,7 +327,7 @@ $(document).ready(function() {
     if (account.full_address) {popup += '<p>' + account.full_address + '</p>';}
     if (account.phone) {popup += '<p>' + account.phone + '</p>';}
     if (account.website) {popup += '<p><a href="' + ensureHttpInUrl(account.website) + '" target="_blank">website</a></p>';}
-    popup += '<a class="pricing-popover" onclick="goScroll(\'account-' + account.id + '\');">Pricing</a>'
+    popup += '<a class="pricing-popover" data-toggle="modal" data-target="#account-modal">Pricing</a>'
     popup += '</div>';
 
     // add marker
@@ -490,48 +491,34 @@ $(document).ready(function() {
   }
 
   // store details page
-  function buildStoreDetails () {
-    var store_id = getQueryVariable("store_id");
+  function buildAccountDetails (account_id) {
+
     // console.log(store_id);
 
-    var store_details_production_url = "http://fastbrewing-production.herokuapp.com/stores/" + store_id + "/details";
-    var store_details_staging_url = "http://fastbrewing-staging.herokuapp.com/stores/" + store_id + "/details";
-    var store_details_development_url = "http://localhost:3000/stores/" + store_id + "/details";
-    var url = store_details_development_url;
+    var account_details_production_url = "http://fastbrewing-production.herokuapp.com/accounts/" + account_id + ".json";
+    var account_details_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/" + account_id + ".json";
+    var account_details_development_url = "http://localhost:3000/accounts/" + account_id + ".json";
+    var url = account_details_development_url;
     console.log(url);
 
-    $.getJSON(url, function(store) {
-      // console.log(store);
-      if (store.result.photo) {
-        $('.store-photo-wrap').html('<img src="' + store.result.photo + '" class="img-reponsive"/>');
-      }
-      $('.store-name').html(store.result.store_name);
-      $('.store-address').html(store.result.address);
-      $('.store-state-country').html(store.result.state + ", " + store.result.country);
-      $('.store-website').html('<a href="' + store.result.website + '" target="_blank">website</a>');
-      $('.store-phone').html(store.result.phone);
-      $('.store-email').html('<a href="mailto:' + store.result.email + '">' + store.result.email + '</a>');
+    $.getJSON(url, function(account) {
+      $('#account-name').html(account.account_name);
+      $('#account-full-address').html(account.full_address);
+      $('#account-website').html('<a href="' + account.website + '" target="_blank">website</a>');
+      $('#account-phone').html(account.phone);
+      $('#account-email').html('<a href="mailto:' + account.email + '">' + account.email + '</a>');
 
-      $.each(store.result.inventories, function(index, inventory) {
-        var inv_to_s;
-        inventory.inventory ? inv_to_s = inventory.inventory : inv_to_s = "";
-        // var inv_string = inventory.inventory;
-        $('.store-products-table tbody').append('<tr><td>' + inventory.name + '</td><td>' + inv_to_s + '</td></tr>');
-      });
-
-      if (store.result.latitude > 0) {
-        storeMap = new GMaps({
-          div: '#store-map',
-          lat: store.result.latitude,
-          lng: store.result.longitude
+      if (account.latitude > 0) {
+        accountMap = new GMaps({
+          div: '#account-map',
+          lat: account.latitude,
+          lng: account.longitude
         });
 
-        storeMap.addMarker({
-          lat: store.result.latitude,
-          lng: store.result.longitude
+        accountMap.addMarker({
+          lat: account.latitude,
+          lng: account.longitude
         });
-      } else {
-        console.log(store.result.latitude);
       }
 
 
