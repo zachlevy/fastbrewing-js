@@ -529,9 +529,9 @@ $(document).ready(function() {
     $("#account-state").html(account.state);
     $("#account-country").html(account.country);
     $("#account-code").html(account.code);
-    $("#account-website").html(account.websie)
-    $("#account-phone").html(account.phone)
-    $("#account-email").html(account.email)
+    $("#account-website").html(account.websie);
+    $("#account-phone").html(account.phone);
+    $("#account-email").html(account.email);
 
     $("#account-fr-table").html(buildFrTable(account));
     $("#account-ff-sk-table").html(buildFfSkTable(account));
