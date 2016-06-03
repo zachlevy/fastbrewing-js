@@ -544,7 +544,7 @@ $(document).ready(function() {
   var reviews_production_url = "http://fastbrewing-production.herokuapp.com/reviews.json";
   var reviews_staging_url = "http://fastbrewing-staging.herokuapp.com/reviews.json";
   var reviews_development_url = "http://localhost:3000/reviews.json";
-  var reviews_url = reviews_development_url;
+  var reviews_url = reviews_production_url;
 
   $("#rating-success").hide();
   $("#rating-failure").hide();
