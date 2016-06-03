@@ -84,7 +84,7 @@ $(document).ready(function() {
         // console.log(account.id + " start");
         // console.log(account);
 
-        row = buildAccountRow(account, true);
+        row = buildOnlineAccountRow(account, true);
         rows.push(row);
 
       });
@@ -266,6 +266,45 @@ $(document).ready(function() {
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastFerment Starter Kit Pricing" data-content="' + ff_sk_pc + '">Pricing</a></td>';
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastRack Pricing" data-content="' + fr_pc + '">Pricing</a></td>';
     row += '<td><a type="button" class="pricing-popover" data-trigger="click" data-html="true" data-placement="left" data-toggle="popover" title="FastLabel Pricing" data-content="' + fl_pc + '">Pricing</a></td>';
+    if (!online) {
+      if (account.fr_speed_challenge_date != null) {row += '<td>' + account.fr_speed_challenge_date + '</td>';} else {row += '<td></td>';}
+    }
+    row += "</tr>";
+    // returns row html
+    return row
+  }
+
+  // builds the account row for the accounts table
+  function buildOnlineAccountRow(account, online) {
+
+    // Id
+    // Account Name
+    // Address
+    // Website
+    // Phone
+    // FF
+    // FF Starter Kits
+    // FR
+    // FL
+    // Speed Challenge Date
+    row = '<tr id="account-' + account.id + '">';
+    // if (store.store_name) {row += '<td><a href="/retailers-and-wholesalers-buy/store-details?store_id=' + store.id + '" target="_blank">' + store.store_name + '</a></td>';} else {row += '<td></td>';}
+    row += "<td>" + account.name + "</td>";
+    if (!online) {
+      if (account.address != null) {row += '<td>' + account.address + '</td>';} else {row += '<td></td>';}
+    }
+    if (account.state != null) {row += '<td>' + account.state + '</td>';} else {row += '<td></td>';}
+    if (account.country != null) {row += '<td>' + account.country + '</td>';} else {row += '<td></td>';}
+    if (account.website != null && account.website.indexOf("http") > -1) {row += '<td><a href="' + account.website + '" target="_blank">website</a></td>';} else {row += '<td></td>';}
+    if (!online) {
+      if (account.phone != null) {row += '<td>' + account.phone + '</td>';} else {row += '<td></td>';}
+    }
+
+    if (account.ff_weblink != null && account.ff_weblink.length > 10) {row += '<td><a href=\'' + ensureHttpInUrl(account.ff_weblink) + '\' target=\'_blank\'>Buy Now</a></td>';} else {row += '<td></td>';}
+    if (account.ff_starter_kit_weblink != null && account.ff_starter_kit_weblink.length > 10) {row += '<td><a href=\'' + ensureHttpInUrl(account.ff_starter_kit_weblink) + '\' target=\'_blank\'>Buy Now</a></td>';} else {row += '<td></td>';}
+    if (account.fr_weblink != null && account.fr_weblink.length > 10) {row += '<td><a href=\'' + ensureHttpInUrl(account.fr_weblink) + '\' target=\'_blank\'>Buy Now</a></td>';} else {row += '<td></td>';}
+    if (account.fl_weblink != null && account.fl_weblink.length > 10) {row += '<td><a href=\'' + ensureHttpInUrl(account.fl_weblink) + '\' target=\'_blank\'>Buy Now</a></td>';} else {row += '<td></td>';}
+
     if (!online) {
       if (account.fr_speed_challenge_date != null) {row += '<td>' + account.fr_speed_challenge_date + '</td>';} else {row += '<td></td>';}
     }
