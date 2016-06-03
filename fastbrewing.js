@@ -35,7 +35,7 @@ $(document).ready(function() {
   var online_accounts_production_url = "http://fastbrewing-production.herokuapp.com/accounts/online.json";
   var online_accounts_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/online.json";
   var online_accounts_development_url = "http://localhost:3000/accounts/online.json";
-  var accounts_url = online_accounts_development_url;
+  var accounts_url = online_accounts_production_url;
   console.log(accounts_url);
 
   // splash modal detector and checker
@@ -107,13 +107,13 @@ $(document).ready(function() {
   var stores_production_url = "http://fastbrewing-production.herokuapp.com/stores/map";
   var stores_staging_url = "http://fastbrewing-staging.herokuapp.com/stores/map";
   var stores_development_url = "http://localhost:3000/stores/map";
-  var stores_url = stores_development_url;
+  var stores_url = stores_production_url;
   console.log(stores_url);
 
   var accounts_salesforce_production_url = "http://fastbrewing-production.herokuapp.com/accounts/physical.json";
   var accounts_salesforce_staging_url = "http://fastbrewing-staging.herokuapp.com/accounts/physical.json";
   var accounts_salesforce_development_url = "http://localhost:3000/accounts/physical.json";
-  var accounts_salesforce_url = accounts_salesforce_development_url;
+  var accounts_salesforce_url = accounts_salesforce_production_url;
   console.log(accounts_salesforce_url);
 
   // stores
@@ -495,7 +495,7 @@ $(document).ready(function() {
       var accounts_location_production_url = 'http://fastbrewing-production.herokuapp.com/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
       var accounts_location_staging_url = 'http://fastbrewing-staging.herokuapp.com/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
       var accounts_location_development_url = 'http://localhost:3000/accounts/near?latitude=' + latitude_to_s + '&longitude=' + longitude_to_s;
-      var accounts_locations_url = accounts_location_development_url;
+      var accounts_locations_url = accounts_location_production_url;
       console.log(accounts_locations_url);
 
       $.getJSON(accounts_locations_url, function (data) {
