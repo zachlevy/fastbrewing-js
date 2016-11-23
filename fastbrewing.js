@@ -325,12 +325,22 @@ $(document).ready(function() {
     }
   }
 
+  function unique(array) {
+    return $.grep(array, function(el, index) {
+      return index == $.inArray(el, array);
+    });
+  }
+
   function createSelectFilter (selector, columnIndex, label) {
     // create select box
     var select = $('<select id="select-filter-' + columnIndex + '" class="form-control input-lg"><option value=""></option></select>')
       .appendTo($(selector).empty())
       .on('change', function () {
-        // console.log($(this).val());
+        if (label == "Country") {
+          // clear state filter
+          $("#select-filter-3").val("");
+          $("#select-filter-3").trigger("change");
+        }
 
         // show the table
         $('#accounts-table_wrapper').show();
@@ -338,9 +348,15 @@ $(document).ready(function() {
         var val = $.fn.dataTable.util.escapeRegex(
           $(this).val()
         );
+        console.log(val)
         accountsTable.column(columnIndex)
-          .search( val ? '^'+val+'$' : '', true, false )
+          .search( val )
           .draw();
+
+        if (label == "Country") {
+          // recreate state province filter
+          createSelectFilter('#state-filter-wrap', 3, "State/Province");
+        }
       });
 
     // add usa and canada options first by client request
@@ -350,9 +366,18 @@ $(document).ready(function() {
       select.append('<option value="">-------------</option>');
     }
     // add options to select
-    accountsTable.column(columnIndex).data().unique().sort().each(function ( d, j ) {
-      select.append('<option value="'+d+'">'+d+'</option>')
-    });
+    if (label == "State/Province") {
+      // if state filter
+      var states = unique($("#accounts-table-tbody tr td:nth-child(4)").map(function (i, e){ return e.innerHTML }).toArray()).sort();
+      $("#select-filter-" + columnIndex).empty();
+      $(states).each( function (i, state) {
+        select.append('<option value="'+state+'">'+state+'</option>');
+      });
+    } else {
+      accountsTable.column(columnIndex).data().unique().sort().each(function ( d, j ) {
+        select.append('<option value="'+d+'">'+d+'</option>');
+      });
+    }
   }
 
   // create the map for stores
