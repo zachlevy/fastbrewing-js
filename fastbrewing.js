@@ -152,8 +152,8 @@ $(document).ready(function() {
       // accountsTable.column(2).visible(false);
       // accountsTable.column(3).visible(false);
 
-      createSelectFilter('#country-filter-wrap', 3, "Country");
-      createSelectFilter('#state-filter-wrap', 2, "State/Province");
+      createSelectFilter('#country-filter-wrap', 4, "Country");
+      createSelectFilter('#state-filter-wrap', 3, "State/Province");
 
     });
   }
@@ -256,6 +256,7 @@ $(document).ready(function() {
     if (!online) {
       if (account.address != null) {row += '<td>' + account.address + '</td>';} else {row += '<td></td>';}
     }
+    if (account.city != null) {row += '<td>' + account.city + '</td>';} else {row += '<td></td>';}
     if (account.state != null) {row += '<td>' + account.state + '</td>';} else {row += '<td></td>';}
     if (account.country != null) {row += '<td>' + account.country + '</td>';} else {row += '<td></td>';}
     if (account.website != null && account.website.indexOf("http") > -1) {row += '<td><a href="' + account.website + '" target="_blank">website</a></td>';} else {row += '<td></td>';}
